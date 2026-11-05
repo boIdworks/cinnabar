@@ -1,0 +1,63 @@
+[
+ {
+  "tool": "launch_client",
+  "args": {
+   "headless": false,
+   "size": [
+    1280,
+    720
+   ],
+   "timeout_ms": 120000
+  }
+ },
+ {
+  "tool": "connect",
+  "args": {
+   "local_server": {}
+  }
+ },
+ {
+  "tool": "wait_for",
+  "args": {
+   "condition": {
+    "in_world": null
+   },
+   "timeout_ms": 120000
+  }
+ },
+ {
+  "tool": "wait_for",
+  "args": {
+   "condition": {
+    "screen": {
+     "name": "Hud"
+    }
+   },
+   "timeout_ms": 120000
+  }
+ },
+ {
+  "tool": "chat",
+  "args": {
+   "text": "/give pumpkin 1"
+  }
+ },
+ {
+  "tool": "chat",
+  "args": {
+   "text": "/give carved_pumpkin 1"
+  }
+ },
+ {
+  "tool": "chat",
+  "args": {
+   "text": "/give lit_pumpkin 1"
+  }
+ },
+ {
+  "tool": "chat",
+  "args": {
+   "text": "/give melon_block 1"
+  }
+ }
+]

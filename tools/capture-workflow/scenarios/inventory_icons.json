@@ -1,0 +1,108 @@
+[
+ {
+  "tool": "launch_client",
+  "args": {
+   "headless": true,
+   "size": [
+    1280,
+    720
+   ],
+   "timeout_ms": 120000
+  }
+ },
+ {
+  "tool": "connect",
+  "args": {
+   "local_server": {}
+  }
+ },
+ {
+  "tool": "wait_for",
+  "args": {
+   "condition": {
+    "in_world": null
+   },
+   "timeout_ms": 120000
+  }
+ },
+ {
+  "tool": "wait_for",
+  "args": {
+   "condition": {
+    "screen": {
+     "name": "Hud"
+    }
+   },
+   "timeout_ms": 120000
+  }
+ },
+ {
+  "tool": "wait_for",
+  "args": {
+   "condition": {
+    "chunks_loaded": {
+     "radius": 2
+    }
+   },
+   "timeout_ms": 120000
+  }
+ },
+ {
+  "tool": "chat",
+  "args": {
+   "text": "/give pumpkin 1"
+  }
+ },
+ {
+  "tool": "chat",
+  "args": {
+   "text": "/give carved_pumpkin 1"
+  }
+ },
+ {
+  "tool": "chat",
+  "args": {
+   "text": "/give lit_pumpkin 1"
+  }
+ },
+ {
+  "tool": "chat",
+  "args": {
+   "text": "/give melon_block 1"
+  }
+ },
+ {
+  "tool": "input",
+  "args": {
+   "press": [
+    "key.inventory"
+   ],
+   "press_frames": 2
+  }
+ },
+ {
+  "tool": "wait_for",
+  "args": {
+   "condition": {
+    "inventory_settled": null
+   },
+   "timeout_ms": 5000
+  }
+ },
+ {
+  "tool": "wait_for",
+  "args": {
+   "condition": {
+    "inventory_ready": null
+   },
+   "timeout_ms": 3000
+  }
+ },
+ {
+  "tool": "screenshot",
+  "args": {
+   "path": "$SHOTS/inv.png",
+   "inline": false
+  }
+ }
+]

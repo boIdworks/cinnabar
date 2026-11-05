@@ -1,0 +1,204 @@
+[
+ {
+  "tool": "launch_client",
+  "args": {
+   "headless": true,
+   "size": [
+    1280,
+    720
+   ],
+   "timeout_ms": 120000
+  }
+ },
+ {
+  "tool": "connect",
+  "args": {
+   "local_server": {}
+  }
+ },
+ {
+  "tool": "wait_for",
+  "args": {
+   "condition": {
+    "in_world": null
+   },
+   "timeout_ms": 120000
+  }
+ },
+ {
+  "tool": "wait_for",
+  "args": {
+   "condition": {
+    "screen": {
+     "name": "Hud"
+    }
+   },
+   "timeout_ms": 120000
+  }
+ },
+ {
+  "tool": "wait_for",
+  "args": {
+   "condition": {
+    "chunks_loaded": {
+     "radius": 2
+    }
+   },
+   "timeout_ms": 120000
+  }
+ },
+ {
+  "tool": "chat",
+  "args": {
+   "text": "/time set noon"
+  }
+ },
+ {
+  "tool": "chat",
+  "args": {
+   "text": "/tp 0.5 -58.4 0.5"
+  }
+ },
+ {
+  "tool": "wait_for",
+  "args": {
+   "condition": {
+    "chunks_loaded": {
+     "radius": 2
+    }
+   },
+   "timeout_ms": 60000
+  }
+ },
+ {
+  "tool": "chat",
+  "args": {
+   "text": "/give carved_pumpkin 1"
+  }
+ },
+ {
+  "tool": "input",
+  "args": {
+   "hotbar": 1
+  }
+ },
+ {
+  "tool": "input",
+  "args": {
+   "press": [
+    "key.inventory"
+   ],
+   "press_frames": 2
+  }
+ },
+ {
+  "tool": "wait_for",
+  "args": {
+   "condition": {
+    "inventory_ready": null
+   },
+   "timeout_ms": 3000
+  },
+  "until_text": "carved_pumpkin",
+  "timeout": 30
+ },
+ {
+  "tool": "screenshot",
+  "args": {
+   "path": "$SHOTS/inventory.png",
+   "inline": false
+  }
+ },
+ {
+  "tool": "input",
+  "args": {
+   "pointer": {
+    "x": 642,
+    "y": 429
+   }
+  }
+ },
+ {
+  "tool": "input",
+  "args": {
+   "press": [
+    "MouseLeft"
+   ],
+   "press_frames": 3
+  }
+ },
+ {
+  "tool": "input",
+  "args": {
+   "pointer": {
+    "x": 643,
+    "y": 293
+   }
+  }
+ },
+ {
+  "tool": "input",
+  "args": {
+   "press": [
+    "MouseLeft"
+   ],
+   "press_frames": 3
+  }
+ },
+ {
+  "tool": "input",
+  "args": {
+   "release_all": true
+  }
+ },
+ {
+  "tool": "input",
+  "args": {
+   "press": [
+    "Escape"
+   ],
+   "press_frames": 2
+  }
+ },
+ {
+  "tool": "input",
+  "args": {
+   "look": {
+    "yaw": 0,
+    "pitch": 0
+   }
+  }
+ },
+ {
+  "tool": "input",
+  "args": {
+   "look": {
+    "yaw": 0,
+    "pitch": 0
+   }
+  }
+ },
+ {
+  "tool": "screenshot",
+  "args": {
+   "path": "$SHOTS/fp-level.png",
+   "inline": false
+  }
+ },
+ {
+  "tool": "input",
+  "args": {
+   "look": {
+    "yaw": 0,
+    "pitch": 60
+   }
+  }
+ },
+ {
+  "tool": "screenshot",
+  "args": {
+   "path": "$SHOTS/fp-down.png",
+   "inline": false
+  }
+ }
+]
