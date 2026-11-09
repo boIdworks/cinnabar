@@ -35,7 +35,7 @@ enum Inputs {
 /// What one row shows besides its position.
 #[derive(Clone, Copy, PartialEq)]
 pub(super) struct RowKey {
-    pub(super) count: u16,
+    pub(super) count: u32,
     pub(super) id_aux: i32,
     pub(super) background: &'static str,
     pub(super) modifier: i64,

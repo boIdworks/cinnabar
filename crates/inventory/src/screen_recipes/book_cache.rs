@@ -29,6 +29,7 @@ pub(super) struct Listing {
 pub(super) struct ListedGroup {
     pub(super) recipe: u32,
     pub(super) craftable: bool,
+    pub(super) craftable_count: u32,
     pub(super) held: bool,
     /// Discovery has not unlocked the preferred candidate.
     pub(super) locked: bool,
@@ -102,7 +103,12 @@ fn build(inventory: &InventorySession, small: bool) -> Listing {
         let unlocked = inventory.crafting_authority.book_recipe_unlocked(recipe);
         let craftable = inputs.can_craft(recipe);
         let held = craftable || inputs.holds_any(recipe);
-        let candidate = BookGroup::new(recipe, unlocked, craftable, held);
+        let count = if craftable {
+            inputs.max_crafts(recipe) * u32::from(recipe.output().count)
+        } else {
+            0
+        };
+        let candidate = BookGroup::new(recipe, unlocked, craftable, held, count);
         let output = recipe.output();
         let key = (output.network_id, output.aux, output.block_runtime_id);
         if let Some(&index) = outputs.get(&key) {
@@ -117,6 +123,7 @@ fn build(inventory: &InventorySession, small: bool) -> Listing {
         .map(|group| ListedGroup {
             recipe: group.entry.recipe.network_id(),
             craftable: group.entry.craftable,
+            craftable_count: group.entry.craftable_count,
             held: group.held,
             locked: group.rank.0,
         })

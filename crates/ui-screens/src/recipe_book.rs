@@ -159,7 +159,10 @@ pub fn book_data(
     let row = |(index, entry): (usize, &BookEntry<'_>)| {
         let stack = entry.stack();
         cache::RowKey {
-            count: stack.count,
+            count: match entry {
+                BookEntry::Recipe(recipe) if recipe.craftable => recipe.craftable_count,
+                _ => u32::from(stack.count),
+            },
             id_aux: facts.id_aux(&stack),
             background: background(source, entry),
             modifier: modifier(entry),

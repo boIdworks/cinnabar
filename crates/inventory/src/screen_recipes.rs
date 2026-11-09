@@ -21,6 +21,8 @@ pub struct BookRecipe {
     pub recipe: RecipeHandle,
     /// Whether inventory ingredients can supply any fitting variant of this output.
     pub craftable: bool,
+    /// Total output available from the preferred recipe.
+    pub craftable_count: u32,
 }
 
 struct BookGroup {
@@ -31,11 +33,18 @@ struct BookGroup {
 
 impl BookGroup {
     /// Ranks a candidate while keeping its material state independent from discovery.
-    fn new(recipe: &RecipeHandle, unlocked: bool, craftable: bool, held: bool) -> Self {
+    fn new(
+        recipe: &RecipeHandle,
+        unlocked: bool,
+        craftable: bool,
+        held: bool,
+        craftable_count: u32,
+    ) -> Self {
         Self {
             entry: BookRecipe {
                 recipe: recipe.clone(),
                 craftable,
+                craftable_count,
             },
             rank: (!unlocked, !craftable, !held, recipe.recipe().priority()),
             held,
@@ -223,6 +232,7 @@ impl InventorySession {
                 Some(BookRecipe {
                     recipe: catalog.recipe(group.recipe)?,
                     craftable: group.craftable,
+                    craftable_count: group.craftable_count,
                 })
             })
             .skip(skip)

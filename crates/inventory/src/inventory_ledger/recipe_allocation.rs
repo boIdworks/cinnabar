@@ -70,6 +70,32 @@ impl<'a> RecipeInputs<'a> {
             .is_some()
     }
 
+    /// Maximum complete crafts supplied by the current inventory.
+    pub(crate) fn max_crafts(&self, recipe: &RecipeHandle) -> u32 {
+        let allocation = self.allocation(&recipe.ingredient_views());
+        let required: u32 = allocation
+            .counts
+            .iter()
+            .map(|count| u32::from(*count))
+            .sum();
+        if required == 0 {
+            return 0;
+        }
+        let (mut low, mut high) = (
+            0,
+            self.variants.iter().map(|v| v.total).sum::<u32>() / required,
+        );
+        while low < high {
+            let middle = low + (high - low).div_ceil(2);
+            if allocation.assign(middle, false, 0).is_some() {
+                low = middle;
+            } else {
+                high = middle - 1;
+            }
+        }
+        low
+    }
+
     /// Whether any admitted variant matches an ingredient, without revalidating source bytes.
     pub(crate) fn holds_any(&self, recipe: &RecipeHandle) -> bool {
         recipe
@@ -128,7 +154,7 @@ impl RecipeAllocation<'_> {
     /// Assigns every ingredient to one variant. Only physical grid cells need a stack limit;
     /// an auto-craft may consume several stacks of that variant in one request.
     pub(super) fn plan(&self, crafts: u8, in_grid: bool) -> Option<Vec<IngredientSources>> {
-        self.assign(crafts, in_grid, 0)
+        self.assign(u32::from(crafts), in_grid, 0)
             .map(|assigned| self.sources(crafts, &assigned))
     }
 
@@ -141,7 +167,7 @@ impl RecipeAllocation<'_> {
     }
 
     /// Searches complete assignments before allowing the requested number of empty cells.
-    fn assign(&self, crafts: u8, in_grid: bool, missing: usize) -> Option<Vec<Option<usize>>> {
+    fn assign(&self, crafts: u32, in_grid: bool, missing: usize) -> Option<Vec<Option<usize>>> {
         let mut search = Search::new(self, crafts, in_grid);
         search.assign(0, missing).then_some(search.assigned)
     }
@@ -179,7 +205,7 @@ impl RecipeAllocation<'_> {
 /// Mutable state for one exact search; each failed branch restores its quantities and choices.
 struct Search<'a> {
     allocation: &'a RecipeAllocation<'a>,
-    demands: Vec<u16>,
+    demands: Vec<u32>,
     compatible: Vec<u16>,
     visited: HashSet<SearchState>,
     remaining: Vec<u32>,
@@ -199,11 +225,11 @@ struct SearchState {
 
 impl<'a> Search<'a> {
     /// Retains each variant's eligible cells, including physical stack limits when placing.
-    fn new(allocation: &'a RecipeAllocation<'a>, crafts: u8, in_grid: bool) -> Self {
+    fn new(allocation: &'a RecipeAllocation<'a>, crafts: u32, in_grid: bool) -> Self {
         let demands: Vec<_> = allocation
             .counts
             .iter()
-            .map(|count| count * u16::from(crafts))
+            .map(|count| u32::from(*count) * crafts)
             .collect();
         let compatible = allocation
             .variants
@@ -217,7 +243,7 @@ impl<'a> Search<'a> {
                     .filter(|(cell, accepts)| {
                         demands[*cell] > 0
                             && accepts.contains(&variant)
-                            && (!in_grid || input.capacity >= demands[*cell])
+                            && (!in_grid || u32::from(input.capacity) >= demands[*cell])
                     })
                     .fold(0, |mask, (cell, _)| mask | (1 << cell))
             })
@@ -260,8 +286,7 @@ impl<'a> Search<'a> {
 
     /// Checks a cell's whole demand against one variant's remaining supply and grid capacity.
     fn fits(&self, cell: usize, variant: usize) -> bool {
-        self.remaining[variant] >= u32::from(self.demands[cell])
-            && self.compatible[variant] & (1 << cell) != 0
+        self.remaining[variant] >= self.demands[cell] && self.compatible[variant] & (1 << cell) != 0
     }
 
     /// Rejects missing individual supply and insufficient total capacity before branching.
@@ -280,7 +305,7 @@ impl<'a> Search<'a> {
             return false;
         }
         for &cell in cells {
-            let demand = u32::from(self.demands[cell]);
+            let demand = self.demands[cell];
             if demand == 0 {
                 continue;
             }
@@ -288,7 +313,7 @@ impl<'a> Search<'a> {
             let shared = cells
                 .iter()
                 .filter(|other| {
-                    u32::from(self.demands[**other]) >= demand
+                    self.demands[**other] >= demand
                         && self
                             .compatible
                             .iter()
@@ -308,7 +333,7 @@ impl<'a> Search<'a> {
         }
         let mut demands: Vec<_> = cells.iter().map(|cell| self.demands[*cell]).collect();
         demands.sort_unstable_by(|a, b| b.cmp(a));
-        let needed: u32 = demands.into_iter().skip(missing).map(u32::from).sum();
+        let needed: u32 = demands.into_iter().skip(missing).sum();
         let available: u32 = self
             .remaining
             .iter()
@@ -371,12 +396,12 @@ impl<'a> Search<'a> {
                 continue;
             }
             choices.push(choice);
-            self.remaining[variant] -= u32::from(demand);
+            self.remaining[variant] -= demand;
             self.assigned[cell] = Some(variant);
             if self.assign(first + 1, missing) {
                 return true;
             }
-            self.remaining[variant] += u32::from(demand);
+            self.remaining[variant] += demand;
             self.assigned[cell] = None;
         }
         let complete = missing > 0 && self.assign(first + 1, missing - 1);

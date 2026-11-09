@@ -296,6 +296,11 @@ fn grid_only_changes_refresh_recipe_book_availability() {
             let listed = session.book_recipes(false, false, 0, usize::MAX);
             assert_eq!(listed.len(), 2);
             assert!(listed.iter().all(|entry| entry.craftable == (count >= 4)));
+            assert!(
+                listed
+                    .iter()
+                    .all(|entry| entry.craftable_count == u32::from(count / 4))
+            );
             assert_eq!(
                 session.book_recipes(true, false, 0, usize::MAX).len(),
                 if count == 0 { 0 } else { 2 }
